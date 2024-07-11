@@ -73,9 +73,7 @@ yarn add \
   @near-wallet-selector/xdefi \
   @near-wallet-selector/ramper-wallet \
   @near-wallet-selector/mintbase-wallet \
-  @near-wallet-selector/near-mobile-wallet \
-  @near-wallet-selector/bitget-wallet \
-  @near-wallet-selector/okx-wallet
+  @near-wallet-selector/bitte-wallet
 
 
 # Using NPM.
