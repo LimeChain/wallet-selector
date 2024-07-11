@@ -23,7 +23,6 @@ import { setupRamperWallet } from "@near-wallet-selector/ramper-wallet";
 import { setupLedger } from "@near-wallet-selector/ledger";
 import { setupNearMobileWallet } from "@near-wallet-selector/near-mobile-wallet";
 import { setupMintbaseWallet } from "@near-wallet-selector/mintbase-wallet";
-import { setupBitteWallet } from "@near-wallet-selector/bitte-wallet";
 import { setupOKXWallet } from "@near-wallet-selector/okx-wallet";
 import { CONTRACT_ID } from "../../../constants";
 
@@ -96,7 +95,6 @@ export class WalletSelectorComponent implements OnInit {
         setupRamperWallet(),
         setupNearMobileWallet(),
         setupMintbaseWallet({ contractId: CONTRACT_ID }),
-        setupBitteWallet({ contractId: CONTRACT_ID }),
       ],
     });
 
