@@ -77,6 +77,7 @@ yarn add \
   @near-wallet-selector/bitget-wallet \
   @near-wallet-selector/okx-wallet
 
+
 # Using NPM.
 npm install \
   @near-wallet-selector/bitget-wallet \
