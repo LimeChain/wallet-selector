@@ -82,8 +82,7 @@ export class WalletSelectorExportComponent implements OnInit {
         }),
         setupRamperWallet(),
         setupNearMobileWallet(),
-        setupMintbaseWallet({ contractId: "guest-book.testnet" }),
-        setupBitteWallet({ contractId: "guest-book.testnet" }),
+        setupMintbaseWallet({ contractId: CONTRACT_ID }),
       ],
     });
     /**

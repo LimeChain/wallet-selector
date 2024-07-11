@@ -71,8 +71,7 @@ export const ExportAccountSelectorContextProvider: React.FC<{
         setupCoin98Wallet(),
         setupNearFi(),
         setupRamperWallet(),
-        setupMintbaseWallet({ contractId: "guest-book.testnet" }),
-        setupBitteWallet({ contractId: "guest-book.testnet" }),
+        setupMintbaseWallet({ contractId: CONTRACT_ID}),
         setupWalletConnect({
           projectId: "c4f79cc...",
           metadata: {
