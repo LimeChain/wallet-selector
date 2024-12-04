@@ -218,6 +218,68 @@ const Content: React.FC = () => {
     [selector, accountId]
   );
 
+  const addMessagesAsync = useCallback(
+    async (message: string, donation: string, multiple: boolean) => {
+      // const { contract } = selector.store.getState();
+      const wallet = await selector.wallet();
+
+      return wallet
+        .signAndSendTransactionAsync?.({
+          signerId: accountId!,
+          actions: [
+            {
+              type: "FunctionCall",
+              params: {
+                methodName: "addMessage",
+                args: { text: message },
+                gas: BOATLOAD_OF_GAS,
+                deposit: utils.format.parseNearAmount(donation)!,
+              },
+            },
+          ],
+        })
+        .then((res) => {
+          console.log("addMessage async", res);
+        })
+        .catch((err) => {
+          alert("Failed to add message " + err);
+          console.log("Failed to add message");
+
+          throw err;
+        });
+
+      // const transactions: Array<Transaction> = [];
+
+      // for (let i = 0; i < 2; i += 1) {
+      //   transactions.push({
+      //     signerId: accountId!,
+      //     receiverId: contract!.contractId,
+      //     actions: [
+      //       {
+      //         type: "FunctionCall",
+      //         params: {
+      //           methodName: "addMessage",
+      //           args: {
+      //             text: `${message} (${i + 1}/2)`,
+      //           },
+      //           gas: BOATLOAD_OF_GAS,
+      //           deposit: utils.format.parseNearAmount(donation)!,
+      //         },
+      //       },
+      //     ],
+      //   });
+      // }
+
+      // return wallet.signAndSendTransactions({ transactions }).catch((err) => {
+      //   alert("Failed to add messages exception " + err);
+      //   console.log("Failed to add messages");
+
+      //   throw err;
+      // });
+    },
+    [selector, accountId]
+  );
+
   const handleVerifyOwner = async () => {
     const wallet = await selector.wallet();
     try {
@@ -302,9 +364,30 @@ const Content: React.FC = () => {
     async (e: Submitted) => {
       e.preventDefault();
 
-      const { fieldset, message, donation, multiple } = e.target.elements;
+      const { fieldset, message, donation, multiple, async } =
+        e.target.elements;
 
       fieldset.disabled = true;
+
+      if (async.checked) {
+        return addMessagesAsync(
+          message.value,
+          donation.value || "0",
+          multiple.checked
+        )
+          .then(() => {
+            message.value = "";
+            donation.value = SUGGESTED_DONATION;
+            fieldset.disabled = false;
+            multiple.checked = false;
+            message.focus();
+          })
+          .catch((err) => {
+            console.error(err);
+
+            fieldset.disabled = false;
+          });
+      }
 
       return addMessages(message.value, donation.value || "0", multiple.checked)
         .then(() => {

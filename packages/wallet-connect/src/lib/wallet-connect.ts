@@ -110,7 +110,7 @@ const setupWalletConnectState = async (
   return {
     client,
     session,
-    keystore,
+    keystore: keystore as unknown as nearAPI.keyStores.KeyStore,
     subscriptions: [],
   };
 };

@@ -37,6 +37,10 @@ const Form: React.FC<FormProps> = ({ account, onSubmit }) => {
           <label htmlFor="multiple">Multiple Transactions:</label>
           <input id="multiple" type="checkbox" />
         </p>
+        <p>
+          <label htmlFor="async">Async:</label>
+          <input id="async" type="checkbox" />
+        </p>
         <button type="submit">Sign</button>
       </fieldset>
     </form>

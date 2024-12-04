@@ -11,7 +11,7 @@ import { setupWalletSelector } from "@near-wallet-selector/core";
 import type { WalletSelector, AccountState } from "@near-wallet-selector/core";
 import { setupExportSelectorModal } from "@near-wallet-selector/account-export";
 import type { WalletSelectorModal } from "@near-wallet-selector/account-export";
-import { setupHereWallet } from "@near-wallet-selector/here-wallet";
+// import { setupHereWallet } from "@near-wallet-selector/here-wallet";
 import { setupSender } from "@near-wallet-selector/sender";
 import { setupBitgetWallet } from "@near-wallet-selector/bitget-wallet";
 import { setupMathWallet } from "@near-wallet-selector/math-wallet";
@@ -26,8 +26,8 @@ import { setupMyNearWallet } from "@near-wallet-selector/my-near-wallet";
 import { setupLedger } from "@near-wallet-selector/ledger";
 import { setupRamperWallet } from "@near-wallet-selector/ramper-wallet";
 import { setupNearMobileWallet } from "@near-wallet-selector/near-mobile-wallet";
-import { setupMintbaseWallet } from "@near-wallet-selector/mintbase-wallet";
-import { setupBitteWallet } from "@near-wallet-selector/bitte-wallet";
+// import { setupMintbaseWallet } from "@near-wallet-selector/mintbase-wallet";
+// import { setupBitteWallet } from "@near-wallet-selector/bitte-wallet";
 import { CONTRACT_ID } from "../constants";
 
 declare global {
@@ -68,12 +68,12 @@ export const ExportAccountSelectorContextProvider: React.FC<{
         setupNightly(),
         setupMeteorWallet(),
         setupWelldoneWallet(),
-        setupHereWallet(),
+        // setupHereWallet(),
         setupCoin98Wallet(),
         setupNearFi(),
         setupRamperWallet(),
-        setupMintbaseWallet({ contractId: CONTRACT_ID }),
-        setupBitteWallet({ contractId: CONTRACT_ID }),
+        // setupMintbaseWallet({ contractId: CONTRACT_ID }),
+        // setupBitteWallet({ contractId: CONTRACT_ID }),
         setupWalletConnect({
           projectId: "c4f79cc...",
           metadata: {

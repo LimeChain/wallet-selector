@@ -50,7 +50,7 @@ const setupWalletState = async (
   const keyStore = new nearAPI.keyStores.BrowserLocalStorageKeyStore();
 
   const near = await nearAPI.connect({
-    keyStore,
+    keyStore: keyStore as any,
     walletUrl: params.walletUrl,
     ...network,
     headers: {},
@@ -104,8 +104,8 @@ const MyNearWallet: WalletBehaviourFactory<
         );
         const accessKey = await account.accessKeyForTransaction(
           transaction.receiverId,
-          actions,
-          localKey
+          actions as any,
+          localKey as any
         );
 
         if (!accessKey) {
@@ -139,10 +139,10 @@ const MyNearWallet: WalletBehaviourFactory<
       }
 
       await _state.wallet.requestSignIn({
-        contractId,
-        methodNames,
-        successUrl,
-        failureUrl,
+        contractId: contractId as any,
+        methodNames: methodNames as any,
+        successUrl: successUrl as any,
+        failureUrl: failureUrl as any,
       });
 
       return getAccounts();
@@ -218,7 +218,35 @@ const MyNearWallet: WalletBehaviourFactory<
 
       return account["signAndSendTransaction"]({
         receiverId: receiverId || contract.contractId,
-        actions: actions.map((action) => createAction(action)),
+        actions: actions.map((action) => createAction(action)) as any,
+        walletCallbackUrl: callbackUrl,
+      });
+    },
+
+    async signAndSendTransactionAsync({
+      signerId,
+      receiverId,
+      actions,
+      callbackUrl,
+    }) {
+      logger.log("signAndSendTransactionAsync", {
+        signerId,
+        receiverId,
+        actions,
+        callbackUrl,
+      });
+
+      const { contract } = store.getState();
+
+      if (!_state.wallet.isSignedIn() || !contract) {
+        throw new Error("Wallet not signed in");
+      }
+
+      const account = _state.wallet.account();
+
+      return await account["signAndSendTransactionAsync"]({
+        receiverId: receiverId || contract.contractId,
+        actions: actions.map((action) => createAction(action)) as any,
         walletCallbackUrl: callbackUrl,
       });
     },
@@ -231,7 +259,7 @@ const MyNearWallet: WalletBehaviourFactory<
       }
 
       return _state.wallet.requestSignTransactions({
-        transactions: await transformTransactions(transactions),
+        transactions: await transformTransactions(transactions) as any,
         callbackUrl,
       });
     },

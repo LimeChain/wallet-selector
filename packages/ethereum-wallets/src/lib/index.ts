@@ -81,7 +81,7 @@ const setupEthereumWalletsState = async (
     `near-wallet-selector:${id}:keystore:`
   );
   return {
-    keystore,
+    keystore: keystore as unknown as nearAPI.keyStores.KeyStore,
     subscriptions: [],
     isConnecting: false,
   };

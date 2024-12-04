@@ -24,9 +24,8 @@ const setupWalletState = async (
     window.localStorage,
     "_meteor_wallet"
   );
-
   const near = await nearAPI.connect({
-    keyStore,
+    keyStore: keyStore as unknown as nearAPI.keyStores.KeyStore,
     ...network,
     headers: {},
   });
