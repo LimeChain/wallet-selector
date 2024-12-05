@@ -240,14 +240,6 @@ interface BaseWalletBehaviour {
     params: SignTransactionParams
   ): Promise<[Uint8Array, SignedTransaction] | void>;
   /**
-   * Sends a signed transaction to the network.
-   */
-  sendTransaction?(params: {
-    hash: Uint8Array;
-    signedTransaction: SignedTransaction;
-    callbackUrl?: string;
-  }): Promise<providers.FinalExecutionOutcome>;
-  /**
    * Composes and signs a SignedDelegate action to be executed in a transaction
    */
   signDelegateAction?(
@@ -346,14 +338,6 @@ export type BrowserWalletBehaviour = Modify<
     signAndSendTransactions(
       params: BrowserWalletSignAndSendTransactionsParams
     ): Promise<void>;
-    signTransaction?(
-      params: SignTransactionParams
-    ): Promise<[Uint8Array, SignedTransaction] | void>;
-    sendTransaction?(params: {
-      hash: Uint8Array;
-      signedTransaction: SignedTransaction;
-      callbackUrl?: string;
-    }): Promise<FinalExecutionOutcome | void>;
   }
 >;
 
