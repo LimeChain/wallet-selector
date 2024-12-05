@@ -223,6 +223,59 @@ const MyNearWallet: WalletBehaviourFactory<
       });
     },
 
+    async signTransaction({
+      receiverId,
+      actions,
+      callbackUrl,
+    }) {
+      logger.log("signTransaction", {
+        receiverId,
+        actions,
+        callbackUrl,
+      });
+
+      const { contract } = store.getState();
+
+      if (!_state.wallet.isSignedIn() || !contract) {
+        throw new Error("Wallet not signed in");
+      }
+
+      const account = _state.wallet.account();
+
+      return account["signTransaction"](
+        receiverId || contract.contractId,
+        actions.map((action) => createAction(action)) as any,
+        undefined,
+        callbackUrl,
+      );
+    },
+
+    async sendTransaction({
+      hash,
+      signedTransaction,
+      callbackUrl,
+    }: {
+      hash: Uint8Array;
+      signedTransaction: any;
+      callbackUrl?: string;
+    }) {
+      logger.log("sendTransaction", {
+        hash,
+        signedTransaction,
+        callbackUrl,
+      });
+
+      const { contract } = store.getState();
+
+      if (!_state.wallet.isSignedIn() || !contract) {
+        throw new Error("Wallet not signed in");
+      }
+
+      const account = _state.wallet.account();
+
+      return account["sendTransaction"](hash, signedTransaction, callbackUrl);
+    },
+
     async signAndSendTransactionAsync({
       signerId,
       receiverId,

@@ -1,5 +1,6 @@
 import React, { Fragment, useCallback, useEffect, useState } from "react";
 import { providers, utils } from "near-api-js";
+import type { SignedTransaction } from "near-api-js/lib/transaction";
 import type {
   AccountView,
   CodeResult,
@@ -18,6 +19,7 @@ import { CONTRACT_ID } from "../constants";
 import SignIn from "./SignIn";
 import Form from "./Form";
 import Messages from "./Messages";
+import SignTransactionForm from "./SignTransactionForm";
 
 type Submitted = SubmitEvent & {
   target: { elements: { [key: string]: HTMLInputElement } };
@@ -53,6 +55,9 @@ const Content: React.FC = () => {
   const [account, setAccount] = useState<Account | null>(null);
   const [messages, setMessages] = useState<Array<Message>>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [signedTx, setSignedTx] = useState<
+    [Uint8Array, SignedTransaction] | null
+  >(null);
 
   const getAccount = useCallback(async (): Promise<Account | null> => {
     if (!accountId) {
@@ -247,35 +252,6 @@ const Content: React.FC = () => {
 
           throw err;
         });
-
-      // const transactions: Array<Transaction> = [];
-
-      // for (let i = 0; i < 2; i += 1) {
-      //   transactions.push({
-      //     signerId: accountId!,
-      //     receiverId: contract!.contractId,
-      //     actions: [
-      //       {
-      //         type: "FunctionCall",
-      //         params: {
-      //           methodName: "addMessage",
-      //           args: {
-      //             text: `${message} (${i + 1}/2)`,
-      //           },
-      //           gas: BOATLOAD_OF_GAS,
-      //           deposit: utils.format.parseNearAmount(donation)!,
-      //         },
-      //       },
-      //     ],
-      //   });
-      // }
-
-      // return wallet.signAndSendTransactions({ transactions }).catch((err) => {
-      //   alert("Failed to add messages exception " + err);
-      //   console.log("Failed to add messages");
-
-      //   throw err;
-      // });
     },
     [selector, accountId]
   );
@@ -360,13 +336,85 @@ const Content: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleSignTransaction = useCallback(
+    async (message: string): Promise<void> => {
+      const { contract } = selector.store.getState();
+      const wallet = await selector.wallet();
+
+      if (!wallet.signTransaction) {
+        throw new Error("Wallet does not support signing transactions");
+      }
+
+      return wallet
+        .signTransaction({
+          receiverId: contract!.contractId,
+          actions: [
+            {
+              type: "FunctionCall",
+              params: {
+                methodName: "addMessage",
+                args: { text: message },
+                gas: BOATLOAD_OF_GAS,
+                deposit: utils.format.parseNearAmount("0")!,
+              },
+            },
+          ],
+        })
+        .then((tx) => {
+          if (tx) {
+            console.log("Signed transaction", tx[0], tx[1]);
+            setSignedTx(tx);
+          }
+        })
+        .catch((err) => {
+          const errMsg =
+            err instanceof Error ? err.message : "Failed to sign transaction";
+          alert(errMsg);
+          throw err;
+        });
+    },
+    [selector]
+  );
+
+  const handleSendTransaction = useCallback(
+    async (tx: [Uint8Array, SignedTransaction]) => {
+      const wallet = await selector.wallet();
+
+      if (!wallet.sendTransaction) {
+        throw new Error("Wallet does not support sending transactions");
+      }
+
+      if (!tx) {
+        throw new Error("No signed transaction to send");
+      }
+
+      return wallet
+        .sendTransaction({
+          hash: tx[0],
+          signedTransaction: tx[1],
+        })
+        .then(async (result) => {
+          console.log("Transaction result", result);
+          setSignedTx(null);
+          await getMessages().then(setMessages);
+          return result;
+        })
+        .catch((err) => {
+          const errMsg =
+            err instanceof Error ? err.message : "Failed to send transaction";
+          alert(errMsg);
+          throw err;
+        });
+    },
+    [selector, getMessages]
+  );
+
   const handleSubmit = useCallback(
     async (e: Submitted) => {
       e.preventDefault();
 
       const { fieldset, message, donation, multiple, async } =
         e.target.elements;
-
       fieldset.disabled = true;
 
       if (async.checked) {
@@ -384,7 +432,6 @@ const Content: React.FC = () => {
           })
           .catch((err) => {
             console.error(err);
-
             fieldset.disabled = false;
           });
       }
@@ -403,17 +450,15 @@ const Content: React.FC = () => {
             .catch((err) => {
               alert("Failed to refresh messages");
               console.log("Failed to refresh messages");
-
               throw err;
             });
         })
         .catch((err) => {
           console.error(err);
-
           fieldset.disabled = false;
         });
     },
-    [addMessages, getMessages]
+    [addMessages, addMessagesAsync, getMessages]
   );
 
   const handleSignMessage = async () => {
@@ -490,6 +535,15 @@ const Content: React.FC = () => {
       <Form
         account={account}
         onSubmit={(e) => handleSubmit(e as unknown as Submitted)}
+      />
+      <SignTransactionForm
+        account={account}
+        onSubmit={async (e) => {
+          e.preventDefault();
+          console.log("Sending signed transaction", signedTx);
+          await handleSendTransaction(signedTx);
+        }}
+        handleSignTx={handleSignTransaction}
       />
       <Messages messages={messages} />
     </Fragment>

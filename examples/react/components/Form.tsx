@@ -41,6 +41,10 @@ const Form: React.FC<FormProps> = ({ account, onSubmit }) => {
           <label htmlFor="async">Async:</label>
           <input id="async" type="checkbox" />
         </p>
+        <p>
+          <label htmlFor="signTx">Sign Transaction:</label>
+          <input id="signTx" type="checkbox" />
+        </p>
         <button type="submit">Sign</button>
       </fieldset>
     </form>
