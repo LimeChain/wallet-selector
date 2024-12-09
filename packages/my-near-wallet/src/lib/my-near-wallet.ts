@@ -10,6 +10,7 @@ import type {
 } from "@near-wallet-selector/core";
 import { createAction } from "@near-wallet-selector/wallet-utils";
 import icon from "./icon";
+import { SignDelegateActionParams, SignedDelegate } from '../../../../dist/packages/core/src/lib/wallet/wallet.types';
 
 export interface MyNearWalletParams {
   walletUrl?: string;
@@ -315,6 +316,25 @@ const MyNearWallet: WalletBehaviourFactory<
         transactions: await transformTransactions(transactions) as any,
         callbackUrl,
       });
+    },
+
+    async signDelegateAction({ actions, receiverId, blockHeightTtl, callbackUrl }: SignDelegateActionParams): Promise<SignedDelegate | void> {
+      logger.log("signDelegateAction", { actions, receiverId, blockHeightTtl, callbackUrl });
+
+      const { contract } = store.getState();
+
+      if (!_state.wallet.isSignedIn() || !contract) {
+        throw new Error("Wallet not signed in");
+      }
+
+      const account = _state.wallet.account();
+
+      return account["signDelegateAction"](
+        actions.map((action) => createAction(action)) as any,
+        blockHeightTtl,
+        receiverId || contract.contractId,
+        callbackUrl,
+      ) as unknown as Promise<SignedDelegate | void>;
     },
 
     buildImportAccountsUrl() {

@@ -20,6 +20,7 @@ import SignIn from "./SignIn";
 import Form from "./Form";
 import Messages from "./Messages";
 import SignTransactionForm from "./SignTransactionForm";
+import SignDelegateActionForm from "./SignDelegateActionForm";
 
 type Submitted = SubmitEvent & {
   target: { elements: { [key: string]: HTMLInputElement } };
@@ -496,6 +497,44 @@ const Content: React.FC = () => {
     }
   };
 
+  const handleSignDelegateAction = useCallback(
+    async (e: Submitted) => {
+      e.preventDefault();
+      const { message } = e.target.elements;
+      const wallet = await selector.wallet();
+      const { contract } = selector.store.getState();
+
+      if (!wallet.signDelegateAction) {
+        throw new Error("Wallet does not support signing delegate actions");
+      }
+
+      return wallet
+        .signDelegateAction?.({
+          blockHeightTtl: 100,
+          receiverId: contract!.contractId,
+          actions: [
+            {
+              type: "FunctionCall",
+              params: {
+                methodName: "addMessage",
+                args: { text: message.value },
+                gas: BOATLOAD_OF_GAS,
+                deposit: utils.format.parseNearAmount("0")!,
+              },
+            },
+          ],
+        })
+        .then((res) => {
+          message.value = "";
+          console.log("Signed delegate action", res);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    },
+    [selector]
+  );
+
   if (loading) {
     return null;
   }
@@ -544,6 +583,10 @@ const Content: React.FC = () => {
           await handleSendTransaction(signedTx);
         }}
         handleSignTx={handleSignTransaction}
+      />
+      <SignDelegateActionForm
+        account={account}
+        onSubmit={handleSignDelegateAction}
       />
       <Messages messages={messages} />
     </Fragment>
