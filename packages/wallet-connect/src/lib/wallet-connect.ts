@@ -17,6 +17,7 @@ import type {
 } from "@near-wallet-selector/core";
 import { getActiveAccount } from "@near-wallet-selector/core";
 import { createAction } from "@near-wallet-selector/wallet-utils";
+import { KeyPair as NearKeyPair } from "@near-js/crypto";
 
 import WalletConnectClient from "./wallet-connect-client";
 import icon from "./icon";
@@ -452,7 +453,7 @@ const WalletConnect: WalletBehaviourFactory<
       await _state.keystore.setKey(
         options.network.networkId,
         accountId,
-        keyPair
+        keyPair as unknown as NearKeyPair
       );
     }
   };

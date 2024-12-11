@@ -10,7 +10,10 @@ import type {
 } from "@near-wallet-selector/core";
 import { createAction } from "@near-wallet-selector/wallet-utils";
 import icon from "./icon";
-import { SignDelegateActionParams, SignedDelegate } from '../../../../dist/packages/core/src/lib/wallet/wallet.types';
+import type {
+  SignDelegateActionParams,
+  SignedDelegate,
+} from "../../../../dist/packages/core/src/lib/wallet/wallet.types";
 
 export interface MyNearWalletParams {
   walletUrl?: string;
@@ -51,7 +54,7 @@ const setupWalletState = async (
   const keyStore = new nearAPI.keyStores.BrowserLocalStorageKeyStore();
 
   const near = await nearAPI.connect({
-    keyStore: keyStore as any,
+    keyStore: keyStore,
     walletUrl: params.walletUrl,
     ...network,
     headers: {},
@@ -105,8 +108,9 @@ const MyNearWallet: WalletBehaviourFactory<
         );
         const accessKey = await account.accessKeyForTransaction(
           transaction.receiverId,
-          actions as any,
-          localKey as any
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          actions as unknown as any,
+          localKey
         );
 
         if (!accessKey) {
@@ -140,10 +144,10 @@ const MyNearWallet: WalletBehaviourFactory<
       }
 
       await _state.wallet.requestSignIn({
-        contractId: contractId as any,
-        methodNames: methodNames as any,
-        successUrl: successUrl as any,
-        failureUrl: failureUrl as any,
+        contractId: contractId,
+        methodNames: methodNames,
+        successUrl: successUrl,
+        failureUrl: failureUrl,
       });
 
       return getAccounts();
@@ -219,16 +223,15 @@ const MyNearWallet: WalletBehaviourFactory<
 
       return account["signAndSendTransaction"]({
         receiverId: receiverId || contract.contractId,
-        actions: actions.map((action) => createAction(action)) as any,
+        actions: actions.map(
+          (action) => createAction(action)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ) as unknown as any,
         walletCallbackUrl: callbackUrl,
       });
     },
 
-    async signTransaction({
-      receiverId,
-      actions,
-      callbackUrl,
-    }) {
+    async signTransaction({ receiverId, actions, callbackUrl }) {
       logger.log("signTransaction", {
         receiverId,
         actions,
@@ -245,9 +248,10 @@ const MyNearWallet: WalletBehaviourFactory<
 
       return account["signTransaction"](
         receiverId || contract.contractId,
-        actions.map((action) => createAction(action)) as any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        actions.map((action) => createAction(action)) as unknown as any,
         undefined,
-        callbackUrl,
+        callbackUrl
       );
     },
 
@@ -257,6 +261,7 @@ const MyNearWallet: WalletBehaviourFactory<
       callbackUrl,
     }: {
       hash: Uint8Array;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       signedTransaction: any;
       callbackUrl?: string;
     }) {
@@ -300,7 +305,11 @@ const MyNearWallet: WalletBehaviourFactory<
 
       return await account["signAndSendTransactionAsync"]({
         receiverId: receiverId || contract.contractId,
-        actions: actions.map((action) => createAction(action)) as any,
+        actions: actions.map(
+          (action) =>
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            createAction(action) as unknown as any
+        ),
         walletCallbackUrl: callbackUrl,
       });
     },
@@ -311,15 +320,27 @@ const MyNearWallet: WalletBehaviourFactory<
       if (!_state.wallet.isSignedIn()) {
         throw new Error("Wallet not signed in");
       }
-
       return _state.wallet.requestSignTransactions({
-        transactions: await transformTransactions(transactions) as any,
+        transactions: (await transformTransactions(
+          transactions
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        )) as unknown as any,
         callbackUrl,
       });
     },
 
-    async signDelegateAction({ actions, receiverId, blockHeightTtl, callbackUrl }: SignDelegateActionParams): Promise<SignedDelegate | void> {
-      logger.log("signDelegateAction", { actions, receiverId, blockHeightTtl, callbackUrl });
+    async signDelegateAction({
+      actions,
+      receiverId,
+      blockHeightTtl,
+      callbackUrl,
+    }: SignDelegateActionParams): Promise<SignedDelegate | void> {
+      logger.log("signDelegateAction", {
+        actions,
+        receiverId,
+        blockHeightTtl,
+        callbackUrl,
+      });
 
       const { contract } = store.getState();
 
@@ -330,10 +351,11 @@ const MyNearWallet: WalletBehaviourFactory<
       const account = _state.wallet.account();
 
       return account["signDelegateAction"](
-        actions.map((action) => createAction(action)) as any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        actions.map((action) => createAction(action)) as unknown as any,
         blockHeightTtl,
         receiverId || contract.contractId,
-        callbackUrl,
+        callbackUrl
       ) as unknown as Promise<SignedDelegate | void>;
     },
 

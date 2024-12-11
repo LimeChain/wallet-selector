@@ -25,6 +25,7 @@ import {
 } from "@wagmi/core";
 import { bytesToHex, keccak256, toHex } from "viem";
 import bs58 from "bs58";
+import type { KeyPair as NearKeyPair } from "@near-js/crypto";
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 type WagmiCoreActionsType = typeof import("@wagmi/core");
@@ -901,7 +902,7 @@ const EthereumWallets: WalletBehaviourFactory<
             await _state.keystore.setKey(
               options.network.networkId,
               accountId,
-              newAccessKeyPair
+              newAccessKeyPair as unknown as NearKeyPair
             );
           }
         } else if (alwaysOnboardDuringSignIn) {
