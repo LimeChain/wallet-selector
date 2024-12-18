@@ -14,7 +14,7 @@ import type {
   SignDelegateActionParams,
   SignedDelegate,
 } from "../../../../dist/packages/core/src/lib/wallet/wallet.types";
-import { SignedTransaction } from "near-api-js/lib/transaction";
+import type { SignedTransaction } from "near-api-js/lib/transaction";
 
 export interface MyNearWalletParams {
   walletUrl?: string;
@@ -59,7 +59,7 @@ const setupWalletState = async (
     walletUrl: params.walletUrl,
     ...network,
     headers: {},
-  });
+  } as unknown as nearAPI.ConnectConfig);
 
   const wallet = new nearAPI.WalletConnection(near, "near_app");
 
@@ -232,7 +232,11 @@ const MyNearWallet: WalletBehaviourFactory<
       });
     },
 
-    async signTransaction({ receiverId, actions, callbackUrl }): Promise<[Uint8Array, SignedTransaction]> {
+    async signTransaction({
+      receiverId,
+      actions,
+      callbackUrl,
+    }): Promise<void | [Uint8Array, SignedTransaction]> {
       logger.log("signTransaction", {
         receiverId,
         actions,
@@ -253,7 +257,7 @@ const MyNearWallet: WalletBehaviourFactory<
         actions.map((action) => createAction(action)) as unknown as any,
         undefined,
         callbackUrl
-      ) as unknown as Promise<[Uint8Array, SignedTransaction]>;
+      ) as unknown as Promise<void | [Uint8Array, SignedTransaction]>;
     },
 
     async sendTransaction({

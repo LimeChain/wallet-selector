@@ -21,6 +21,10 @@ import Form from "./Form";
 import Messages from "./Messages";
 import SignTransactionForm from "./SignTransactionForm";
 import SignDelegateActionForm from "./SignDelegateActionForm";
+import { relayTransaction } from "@near-relay/client";
+import { SignedDelegate } from "../../../../near-api-js/packages/transactions/lib";
+import * as nearAPI from 'near-api-js';
+import { createKey, getKeys } from '@near-js/biometric-ed25519';
 
 type Submitted = SubmitEvent & {
   target: { elements: { [key: string]: HTMLInputElement } };
@@ -524,9 +528,22 @@ const Content: React.FC = () => {
             },
           ],
         })
-        .then((res) => {
+        .then((res: SignedDelegate) => {
           message.value = "";
           console.log("Signed delegate action", res);
+
+          // createKey(res.delegateAction.senderId).then((key) => {
+          //   console.log("Key", key);
+          //   getKeys(res.delegateAction.senderId).then((keys) => {
+          //     console.log("Keys", keys);
+          //   });
+          // });
+          
+          relayTransaction(res.delegateAction.actions, res.delegateAction.receiverId, "https://relay.mintbase.xyz/relay/georgilime-0.pay-master.near", "mainnet").then((receipt) => {
+            console.log("Receipt", receipt);
+          }).catch((err) => {
+              console.error(err);
+            });
         })
         .catch((err) => {
           console.error(err);

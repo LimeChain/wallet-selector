@@ -54,7 +54,7 @@ const setupWalletState = async (
     walletUrl: params.walletUrl,
     ...network,
     headers: {},
-  });
+  } as unknown as nearAPI.ConnectConfig);
 
   const wallet = new nearAPI.WalletConnection(near, "near_app");
 
@@ -141,7 +141,6 @@ const ArepaWallet: WalletBehaviourFactory<
         methodNames,
         successUrl,
         failureUrl,
-        keyType: "ed25519"
       });
 
       return getAccounts();
@@ -217,7 +216,9 @@ const ArepaWallet: WalletBehaviourFactory<
 
       return account["signAndSendTransaction"]({
         receiverId: receiverId || contract.contractId,
-        actions: actions.map((action) => createAction(action)) as unknown as any,
+        actions: actions.map((action) =>
+          createAction(action)
+        ) as unknown as any,
         walletCallbackUrl: callbackUrl,
       });
     },
@@ -230,7 +231,9 @@ const ArepaWallet: WalletBehaviourFactory<
       }
 
       return _state.wallet.requestSignTransactions({
-        transactions: await transformTransactions(transactions) as unknown as any,
+        transactions: (await transformTransactions(
+          transactions
+        )) as unknown as any,
         callbackUrl,
       });
     },

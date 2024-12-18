@@ -96,10 +96,31 @@ const near: Chain = {
   testnet: true,
 };
 
+const nearMainnet: Chain = {
+  id: 397,
+  name: "NEAR Protocol Mainnet",
+  nativeCurrency: {
+    decimals: 18,
+    name: "NEAR",
+    symbol: "NEAR",
+  },
+  rpcUrls: {
+    default: { http: ["https://rpc.mainnet.near.org"] },
+    public: { http: ["https://rpc.mainnet.near.org"] },
+  },
+  blockExplorers: {
+    default: {
+      name: "NEAR Explorer",
+      url: "https://explorer.near.org",
+    },
+  },
+  testnet: false,
+};
+
 const wagmiConfig: Config = createConfig({
-  chains: [near],
+  chains: [nearMainnet],
   transports: {
-    [near.id]: http(),
+    [nearMainnet.id]: http(),
   },
   connectors: [
     walletConnect({
@@ -153,7 +174,7 @@ export const WalletSelectorContextProvider: React.FC<{
 
   const init = useCallback(async () => {
     const _selector = await setupWalletSelector({
-      network: "testnet",
+      network: "mainnet",
       debug: true,
       modules: [
         setupMyNearWallet(),
