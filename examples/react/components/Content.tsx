@@ -21,10 +21,8 @@ import Form from "./Form";
 import Messages from "./Messages";
 import SignTransactionForm from "./SignTransactionForm";
 import SignDelegateActionForm from "./SignDelegateActionForm";
-import { relayTransaction } from "@near-relay/client";
 import { SignedDelegate } from "../../../../near-api-js/packages/transactions/lib";
 import * as nearAPI from 'near-api-js';
-import { createKey, getKeys } from '@near-js/biometric-ed25519';
 
 type Submitted = SubmitEvent & {
   target: { elements: { [key: string]: HTMLInputElement } };
@@ -532,18 +530,35 @@ const Content: React.FC = () => {
           message.value = "";
           console.log("Signed delegate action", res);
 
-          // createKey(res.delegateAction.senderId).then((key) => {
-          //   console.log("Key", key);
-          //   getKeys(res.delegateAction.senderId).then((keys) => {
-          //     console.log("Keys", keys);
-          //   });
-          // });
-          
-          relayTransaction(res.delegateAction.actions, res.delegateAction.receiverId, "https://relay.mintbase.xyz/relay/georgilime-0.pay-master.near", "mainnet").then((receipt) => {
-            console.log("Receipt", receipt);
+          // nearAPI.transactions version is the problem
+          const encoded = nearAPI.transactions.encodeSignedDelegate(res as any);
+          console.log("Encoded", encoded);
+
+          fetch("https://relay.mintbase.xyz/relay/georgilime-0.pay-master.near", {
+            method: "POST",
+            mode: "cors",
+            body: JSON.stringify([Array.from(encoded)]),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }).then((res) => {
+            console.log("Response", res);
           }).catch((err) => {
-              console.error(err);
-            });
+            console.log("Error", err);
+          });
+
+          // createAccount("https://relay.mintbase.xyz/relay/georgilime-0.pay-master.near", res.delegateAction.senderId, { usePasskey: true }).then((account) => {
+          //   console.log("Account", account);
+          //   relayTransaction(res.delegateAction.actions, res.delegateAction.receiverId, "https://relay.mintbase.xyz/relay/georgilime-0.pay-master.near").then((receipt) => {
+          //     console.log("Receipt", receipt);
+          //   }).catch((err) => {
+          //     console.error(err);
+          //   });
+
+          // }).catch((err) => {
+          //   console.error(err);
+          // });
+         
         })
         .catch((err) => {
           console.error(err);
